@@ -1,0 +1,45 @@
+{% from '_components.html' import icon %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} · FrameLab</title>
+  <meta name="description" content="FrameLab — Explore, Transform, and Understand Images.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2322252a'/%3E%3Cpath d='M9 13V9h4M19 9h4v4M23 19v4h-4M13 23H9v-4' stroke='%23fff' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Crect x='13' y='13' width='6' height='6' rx='1' fill='%236f9be0'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% set ep = request.endpoint %}
+<div class="app">
+  <aside class="sidebar" aria-label="Main navigation">
+    <a class="brand" href="{{ url_for('pages.index') }}" aria-label="FrameLab home">
+      <svg class="brand-mark" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#363b42"/>
+        <path d="M9 13V9h4M19 9h4v4M23 19v4h-4M13 23H9v-4" stroke="#f1f3f5" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="13" y="13" width="6" height="6" rx="1.2" fill="#6f9be0"/>
+      </svg>
+      <span class="brand-text"><strong>FrameLab</strong><small>Image Processing Studio</small></span>
+    </a>
+    <nav class="nav">
+      <a href="{{ url_for('pages.index') }}" class="{{ 'active' if ep == 'pages.index' }}" title="Dashboard">{{ icon('dashboard') }}<span>Dashboard</span></a>
+      <a href="{{ url_for('pages.image_processing') }}" class="{{ 'active' if ep == 'pages.image_processing' }}" title="Image Processing">{{ icon('image') }}<span>Image Processing</span></a>
+      <a href="{{ url_for('pages.video_processing') }}" class="{{ 'active' if ep == 'pages.video_processing' }}" title="Video Processing">{{ icon('video') }}<span>Video Processing</span></a>
+      <a href="{{ url_for('pages.camera') }}" class="{{ 'active' if ep == 'pages.camera' }}" title="Camera Capture">{{ icon('camera') }}<span>Camera Capture</span></a>
+      <a href="{{ url_for('pages.about') }}" class="{{ 'active' if ep == 'pages.about' }}" title="About Project">{{ icon('info') }}<span>About Project</span></a>
+    </nav>
+    <p class="side-foot">Digital Image Processing<br>Final project</p>
+  </aside>
+
+  <main class="main" id="main">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% from '_components.html' import icon %}
+{% block title %}About Project{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <h1>About Project</h1>
+  <p>FrameLab is the final project for the Digital Image Processing course: a web application whose results come from real algorithms, not from visual effects.</p>
+</header>
+
+<section class="block tight">
+  <header class="block-head"><h2>How it works</h2></header>
+  <div class="info-grid">
+    <article>
+      <h3>Browser</h3>
+      <p>HTML, CSS and vanilla JavaScript handle upload, playback, the camera (MediaDevices API) and the histogram charts (Chart.js). The browser never computes a result itself.</p>
+    </article>
+    <article>
+      <h3>Flask API</h3>
+      <p>Files and frames arrive over <code>fetch()</code> as multipart form data or JSON. Routes only validate input and delegate to services.</p>
+    </article>
+    <article>
+      <h3>Python algorithms</h3>
+      <p>Each method lives in its own module inside <code>algorithms/</code> and uses OpenCV and NumPy. Images are kept in BGR order internally and converted from RGB exactly once, when they are decoded.</p>
+    </article>
+  </div>
+</section>
+
+<section class="block tight">
+  <header class="block-head"><h2>Video processing, stated plainly</h2></header>
+  <div class="prose">
+    <p>The browser plays the video and, for every displayed frame, captures it to a canvas and posts it to <code>/api/process-video-frame</code>. The Python backend processes that frame with the selected algorithm and returns it, and the page draws it next to the original together with both histograms.</p>
+    <p>This is <strong>near real-time, not true real-time streaming</strong>. Round-trip time depends on your computer and frame size. In <em>Near real-time</em> mode the original keeps playing and frames the server could not process in time are skipped (the “Skipped” counter and “Result lag” show this). In <em>Frame-locked</em> mode the page seeks to each frame in order and waits for its result, so both videos always show the same instant, but playback is slower than real time.</p>
+  </div>
+</section>
+
+<section class="block tight">
+  <header class="block-head"><h2>API endpoints</h2></header>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">GET</td><td class="mono">/api/methods</td><td>Method catalogue and parameter schema (builds the controls)</td></tr>
+        <tr><td class="mono">POST</td><td class="mono">/api/upload-image</td><td>Validate and store an uploaded image</td></tr>
+        <tr><td class="mono">POST</td><td class="mono">/api/process-image</td><td>Run a method on a stored image</td></tr>
+        <tr><td class="mono">GET</td><td class="mono">/api/histogram</td><td>Histogram of the original or the result (<code>?id=…&amp;which=original|result</code>)</td></tr>
+        <tr><td class="mono">GET</td><td class="mono">/api/download-result</td><td>Download the latest result as PNG</td></tr>
+        <tr><td class="mono">POST</td><td class="mono">/api/upload-video</td><td>Validate a video with OpenCV and read its metadata</td></tr>
+        <tr><td class="mono">POST</td><td class="mono">/api/process-video-frame</td><td>Process one video frame (optionally return it as a PNG download)</td></tr>
+        <tr><td class="mono">POST</td><td class="mono">/api/capture-process</td><td>Store and process a webcam photo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="block tight">
+  <header class="block-head"><h2>Methods and formulas</h2></header>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>#</th><th>Method</th><th>Formula</th><th>Parameters</th></tr></thead>
+      <tbody>
+        {% for m in methods %}
+        <tr>
+          <td class="mono">{{ '%02d' % m.index }}</td>
+          <td>{{ m.name }}</td>
+          <td><code>{{ m.formula }}</code></td>
+          <td>{% if m.params %}{% for p in m.params %}{{ p.label }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

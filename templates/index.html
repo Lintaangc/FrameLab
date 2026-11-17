@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% from '_components.html' import icon %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Image Processing Studio</p>
+    <h1>FrameLab</h1>
+    <p class="tagline">Explore, Transform, and Understand Images.</p>
+    <p class="lead">Apply classic digital image processing algorithms to photos, video and live camera captures. Every result is computed by Python and OpenCV on the server, and every change is visible in the histogram.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="{{ url_for('pages.image_processing') }}">Start Processing {{ icon('arrow', 18) }}</a>
+      <a class="btn btn-quiet btn-lg" href="{{ url_for('pages.about') }}">About the project</a>
+    </div>
+  </div>
+
+  <figure class="hero-figure" aria-label="Illustration of a 3 by 3 kernel moving over a pixel grid">
+    <svg viewBox="0 0 420 270" role="img" aria-hidden="true">
+      <g transform="translate(14 14)">
+        {% for y in range(9) %}{% for x in range(9) %}
+        {% set v = 34 + ((x * 5 + y * 3 + x * y * 2) % 11) * 6 %}
+        <rect x="{{ x * 24 }}" y="{{ y * 24 }}" width="22" height="22" rx="2" fill="hsl(215 7% {{ v }}%)"/>
+        {% endfor %}{% endfor %}
+        <rect x="{{ 3 * 24 - 2 }}" y="{{ 3 * 24 - 2 }}" width="{{ 3 * 24 + 2 }}" height="{{ 3 * 24 + 2 }}" rx="4" fill="none" stroke="#3b68b0" stroke-width="2.5"/>
+      </g>
+      <path d="M244 125h58" stroke="#7a828d" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="1 5"/>
+      <path d="M296 119l8 6-8 6" fill="none" stroke="#7a828d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="318" y="108" width="34" height="34" rx="4" fill="hsl(215 7% 62%)" stroke="#3b68b0" stroke-width="2.5"/>
+      <text x="14" y="252" class="fig-cap">g(x,y) = Σ h(i,j) · f(x+i, y+j)</text>
+      <text x="318" y="160" class="fig-cap small">g(x,y)</text>
+    </svg>
+    <figcaption>A neighbourhood operation: each output pixel is computed from a small window of input pixels.</figcaption>
+  </figure>
+</section>
+
+<section class="block">
+  <header class="block-head">
+    <h2>Three ways to work</h2>
+    <p>Same algorithms, three sources of pixels.</p>
+  </header>
+  <div class="mode-grid">
+    <a class="mode" href="{{ url_for('pages.image_processing') }}">
+      <span class="mode-icon">{{ icon('image', 22) }}</span>
+      <h3>Image Processing</h3>
+      <p>Upload or drag in a JPG, PNG, BMP or WEBP file. Compare the original with the result and inspect both histograms.</p>
+      <span class="mode-link">Open workspace {{ icon('arrow', 16) }}</span>
+    </a>
+    <a class="mode" href="{{ url_for('pages.video_processing') }}">
+      <span class="mode-icon">{{ icon('video', 22) }}</span>
+      <h3>Video Processing</h3>
+      <p>Play a video while its frames are sent one by one to the Python backend and shown next to the original.</p>
+      <span class="mode-link">Open workspace {{ icon('arrow', 16) }}</span>
+    </a>
+    <a class="mode" href="{{ url_for('pages.camera') }}">
+      <span class="mode-icon">{{ icon('camera', 22) }}</span>
+      <h3>Camera Capture</h3>
+      <p>Take a photo with your webcam, then run any of the 11 methods on it.</p>
+      <span class="mode-link">Open workspace {{ icon('arrow', 16) }}</span>
+    </a>
+  </div>
+</section>
+
+<section class="block">
+  <header class="block-head">
+    <h2>{{ methods|length }} methods</h2>
+    <p>Each one is a real algorithm with parameters that change the output. Select one to open it in the image workspace.</p>
+  </header>
+  <ol class="method-list">
+    {% for m in methods %}
+    <li>
+      <a href="{{ url_for('pages.image_processing', method=m.id) }}">
+        <span class="m-num mono">{{ '%02d' % m.index }}</span>
+        <span class="m-body">
+          <strong>{{ m.name }}</strong>
+          <span class="m-sum">{{ m.summary }}</span>
+          <code class="m-formula">{{ m.formula }}</code>
+        </span>
+      </a>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+<section class="block">
+  <header class="block-head">
+    <h2>About digital image processing</h2>
+    <p>A short orientation for reading the results.</p>
+  </header>
+  <div class="info-grid">
+    <article>
+      <h3>An image is a matrix</h3>
+      <p>A digital image is a grid of pixels. In 8-bit images each channel stores an intensity from 0 (black) to 255 (full brightness). Processing means computing new numbers from the old ones.</p>
+    </article>
+    <article>
+      <h3>Three families of operations</h3>
+      <p><strong>Point operations</strong> change each pixel alone (brightness, negative, gamma, thresholding). <strong>Neighbourhood operations</strong> look at nearby pixels (blur, edges). <strong>Geometric operations</strong> move pixels (mirroring, rotation).</p>
+    </article>
+    <article>
+      <h3>The histogram tells the story</h3>
+      <p>A histogram counts how many pixels have each intensity. A narrow histogram means low contrast, one piled to the right means a bright image. Watch how it moves after each method.</p>
+    </article>
+  </div>
+</section>
+{% endblock %}

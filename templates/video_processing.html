@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% from '_components.html' import icon, hist_card, dropzone %}
+{% block title %}Video Processing{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <h1>Video Processing</h1>
+  <p>Frames are captured from the playing video, processed one by one by the Python backend, and shown beside the original.</p>
+</header>
+
+<div class="workspace">
+  <section class="stage" id="stage">
+    <div id="dropWrap">
+      {{ dropzone('dropzone', 'fileInput', '.mp4,.webm,.mov,.m4v,.ogv,video/mp4,video/webm,video/quicktime,video/ogg', 'Drop a video here', 'MP4 · WEBM · MOV · M4V · OGV — up to 200 MB') }}
+    </div>
+
+    <div id="workArea" hidden>
+      <div class="toolbar">
+        <div class="file-meta"><strong id="fileName">video</strong><span class="mono muted" id="fileInfo"></span></div>
+        <div class="toolbar-actions">
+          <button class="btn btn-ghost btn-sm" id="btnReplace" type="button">{{ icon('upload', 16) }} Replace video</button>
+        </div>
+      </div>
+
+      <div class="compare">
+        <figure class="pane">
+          <figcaption><span>Original video</span><span class="mono muted" id="origTime">00:00.0</span></figcaption>
+          <div class="pane-img dark"><video id="vid" playsinline preload="auto"></video></div>
+        </figure>
+        <figure class="pane">
+          <figcaption><span>Processed · Python / OpenCV</span><span class="mono muted" id="resTime">—</span></figcaption>
+          <div class="pane-img dark">
+            <canvas id="resCanvas" hidden></canvas>
+            <p class="pane-empty" id="resEmpty">Waiting for the first frame…</p>
+          </div>
+        </figure>
+      </div>
+
+      <div class="transport card">
+        <div class="transport-row">
+          <button class="btn btn-primary btn-icon" id="btnPlay" type="button" aria-label="Play">{{ icon('play', 18) }}</button>
+          <button class="btn btn-quiet btn-icon" id="btnRestart" type="button" aria-label="Reset playback" title="Reset playback">{{ icon('reset', 18) }}</button>
+          <input type="range" id="timeline" class="timeline" min="0" max="1000" value="0" step="1" aria-label="Video timeline">
+          <span class="mono time-label"><span id="tCur">00:00.0</span> / <span id="tDur">00:00.0</span></span>
+        </div>
+        <dl class="chips" id="chips">
+          <div class="chip"><dt>Processed</dt><dd id="stProcessed">0</dd></div>
+          <div class="chip"><dt>Skipped</dt><dd id="stSkipped">0</dd></div>
+          <div class="chip"><dt>Server time</dt><dd id="stServer">—</dd></div>
+          <div class="chip"><dt>Round trip</dt><dd id="stRound">—</dd></div>
+          <div class="chip"><dt>Throughput</dt><dd id="stFps">—</dd></div>
+          <div class="chip"><dt>Result lag</dt><dd id="stLag">—</dd></div>
+        </dl>
+        <p class="inline-error" id="panelError" role="alert" hidden></p>
+      </div>
+
+      <div class="hist-row">
+        {{ hist_card('histOrig', 'Original frame histogram') }}
+        {{ hist_card('histRes', 'Processed frame histogram') }}
+      </div>
+    </div>
+  </section>
+
+  <aside class="controls card" aria-label="Processing controls">
+    <h2 class="controls-title">Method</h2>
+    <div id="methodPanel"></div>
+
+    <h2 class="controls-title spaced">Playback</h2>
+    <label class="field-label" for="modeSelect">Processing mode</label>
+    <div class="select-wrap">
+      <select id="modeSelect" class="select">
+        <option value="realtime">Near real-time</option>
+        <option value="locked">Frame-locked (exact sync)</option>
+      </select>
+    </div>
+    <label class="field-label" for="procWidth">Processing width</label>
+    <div class="select-wrap">
+      <select id="procWidth" class="select">
+        <option value="480">480 px — fastest</option>
+        <option value="640" selected>640 px — balanced</option>
+        <option value="960">960 px — sharper</option>
+      </select>
+    </div>
+
+    <div class="btn-stack">
+      <button class="btn btn-quiet" id="btnDownload" type="button" disabled>{{ icon('download', 16) }} Download Frame</button>
+    </div>
+    <p class="hint"><strong>Near real-time</strong> keeps the original playing at normal speed; frames the server cannot keep up with are skipped and counted. <strong>Frame-locked</strong> steps through every frame so original and result always show the same instant, at the cost of playing slower than real time.</p>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vendor/chart.umd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/histogram.js') }}"></script>
+<script src="{{ url_for('static', filename='js/video.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% from '_components.html' import icon, hist_card, dropzone %}
+{% block title %}Image Processing{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <h1>Image Processing</h1>
+  <p>Upload an image, choose a method, and compare the result with the original.</p>
+</header>
+
+<div class="workspace">
+  <section class="stage" id="stage">
+    <div id="dropWrap">
+      {{ dropzone('dropzone', 'fileInput', '.jpg,.jpeg,.png,.bmp,.webp,image/jpeg,image/png,image/bmp,image/webp', 'Drop an image here', 'JPG · JPEG · PNG · BMP · WEBP — up to 16 MB') }}
+    </div>
+
+    <div id="workArea" hidden>
+      <div class="toolbar">
+        <div class="file-meta"><strong id="fileName">image</strong><span class="mono muted" id="fileDims"></span></div>
+        <div class="toolbar-actions">
+          <button class="btn btn-ghost btn-sm" id="btnReplace" type="button">{{ icon('upload', 16) }} Replace image</button>
+        </div>
+      </div>
+
+      <div class="compare">
+        <figure class="pane">
+          <figcaption><span>Original</span><span class="mono muted" id="origMeta"></span></figcaption>
+          <div class="pane-img"><img id="imgOriginal" alt="Original image"></div>
+        </figure>
+        <figure class="pane">
+          <figcaption><span>Result</span><span class="mono muted" id="resMeta"></span></figcaption>
+          <div class="pane-img">
+            <img id="imgResult" alt="Processed image" hidden>
+            <p class="pane-empty" id="resEmpty">Choose a method and press <strong>Apply Processing</strong></p>
+            <div class="pane-busy" id="resBusy" hidden><span class="spinner"></span></div>
+          </div>
+        </figure>
+      </div>
+
+      <div class="hist-row">
+        {{ hist_card('histOrig', 'Original histogram') }}
+        {{ hist_card('histRes', 'Processed histogram') }}
+      </div>
+    </div>
+  </section>
+
+  <aside class="controls card" aria-label="Processing controls">
+    <h2 class="controls-title">Method</h2>
+    <div id="methodPanel"></div>
+    <p class="inline-error" id="panelError" role="alert" hidden></p>
+
+    <label class="check live-toggle">
+      <input type="checkbox" id="liveToggle" checked>
+      <span>Live preview while adjusting</span>
+    </label>
+
+    <div class="btn-stack">
+      <button class="btn btn-primary" id="btnApply" type="button" disabled>Apply Processing</button>
+      <div class="btn-pair">
+        <button class="btn btn-quiet" id="btnReset" type="button" disabled>{{ icon('reset', 16) }} Reset</button>
+        <button class="btn btn-quiet" id="btnDownload" type="button" disabled>{{ icon('download', 16) }} Download Result</button>
+      </div>
+    </div>
+    <p class="hint">The original image is never modified. Reset clears the result and restores default parameters.</p>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vendor/chart.umd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/histogram.js') }}"></script>
+<script src="{{ url_for('static', filename='js/image.js') }}"></script>
+{% endblock %}
